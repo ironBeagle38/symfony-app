@@ -1,0 +1,17 @@
+{
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.4",
+        "vite": "^5.0",
+        "vite-plugin-symfony": "^6.4"
+    },
+    "dependencies": {
+        "vue": "^3.4.25",
+        "vue-router": "4.3.0"
+    }
+}
