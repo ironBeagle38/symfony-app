@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 ###> symfony/framework-bundle ###
+.env
 .env.local
 .env.local.php
 .env.*.local
@@ -44,3 +45,6 @@ composer.lock
 symfony.lock
 yarn.lock
 .yarn
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
