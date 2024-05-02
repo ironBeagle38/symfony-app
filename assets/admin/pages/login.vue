@@ -11,19 +11,39 @@ import { themeConfig } from '@themeConfig'
 
 definePage({ meta: { layout: 'blank' } })
 
-const form = ref({
-  email: '',
-  password: '',
-  remember: false,
-})
-
-const isPasswordVisible = ref(false)
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
+
+const form = ref(null);
+const isPasswordVisible = ref(false)
+
+const username = ref('');
+const password = ref('');
+const valid = ref(false);
+const rules = {
+  required: value => !!value || 'Required.'
+};
+
+const router = useRouter();
+
+const login = async () => {
+  if (form.value.validate()) {
+    try {
+      const response = await axios.post('http://localhost:8000/api/login', {
+        username: username.value,
+        password: password.value
+      });
+      localStorage.setItem('user', JSON.stringify(response.data));
+      router.push({ name: 'home' });  // Rediriger l'utilisateur après la connexion réussie
+    } catch (error) {
+      console.error('Error on login:', error.response.data);
+    }
+  }
+};
 </script>
 
 <template>
-  <RouterLink to="/">
+  <RouterLink to="/admin">
     <div class="auth-logo d-flex align-center gap-x-3">
       <VNodeRenderer :nodes="themeConfig.app.logo" />
       <h1 class="auth-title">
@@ -74,19 +94,21 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
+            Bienvenue 👋🏻
           </h4>
           <p class="mb-0">
-            Please sign-in to your account and start the adventure
+            Connectez-vous à votre compte
           </p>
         </VCardText>
         <VCardText>
-          <VForm @submit.prevent="() => { }">
+          <VForm @submit.prevent="login">
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
                   v-model="form.email"
+                  :rules="[rules.required]"
+
                   autofocus
                   label="Email"
                   type="email"
@@ -98,7 +120,8 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
               <VCol cols="12">
                 <AppTextField
                   v-model="form.password"
-                  label="Password"
+                  :rules="[rules.required]"
+                  label="Mot de passe"
                   placeholder="············"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -108,13 +131,13 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                 <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
                   <VCheckbox
                     v-model="form.remember"
-                    label="Remember me"
+                    label="Se souvenir de moi"
                   />
                   <a
                     class="text-primary ms-2 mb-1"
                     href="#"
                   >
-                    Forgot Password?
+                    Mot de passe oublié ?
                   </a>
                 </div>
 
