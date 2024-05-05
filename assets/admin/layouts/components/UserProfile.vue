@@ -1,5 +1,14 @@
 <script setup>
 import avatar1 from '@images/avatars/avatar-1.png'
+import { useAuthStore } from '@/stores/auth';
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const logout = async () => {
+  authStore.logout()
+  router.push({ name: 'login' }); // Rediriger vers le tableau de bord
+}
 </script>
 
 <template>
@@ -109,9 +118,8 @@ import avatar1 from '@images/avatars/avatar-1.png'
 
           <!-- Divider -->
           <VDivider class="my-2" />
-
           <!-- 👉 Logout -->
-          <VListItem to="/login">
+          <VListItem @click="logout">
             <template #prepend>
               <VIcon
                 class="me-2"

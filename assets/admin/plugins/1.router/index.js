@@ -1,5 +1,6 @@
 import { setupLayouts } from 'virtual:generated-layouts'
 import { createRouter, createWebHistory } from 'vue-router/auto'
+import { useAuthStore } from '@/stores/auth'; // Importez votre store d'authentification
 
 function recursiveLayouts(route) {
   if (route.children) {
@@ -25,7 +26,24 @@ const router = createRouter({
   ],
 })
 
-export { router }
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = authStore.isAuthenticated();
+
+  // Vérifiez si la route requiert l'authentification
+  if (to.matched.some(record => record.path.startsWith('/admin'))) {
+    console.log(authStore.isAuthenticated())
+    if (!isAuthenticated) {
+      // Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
+      next({ path: '/login' });
+    } else {
+      next(); // tout est bon, continuer la navigation
+    }
+  } else {
+    next(); // assurez-vous de toujours appeler next() sinon la navigation ne se fera pas
+  }
+});
+
 export default function (app) {
   app.use(router)
 }

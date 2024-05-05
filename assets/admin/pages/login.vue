@@ -8,49 +8,70 @@ import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer.jsx'
 import { themeConfig } from '@themeConfig'
+import { useAuthStore } from '@/stores/auth'
+import {isEmpty} from "@core/utils/helpers.js";
 
 definePage({ meta: { layout: 'blank' } })
 
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
-const form = ref(null);
+const authStore = useAuthStore()
+const form = ref(null)
 const isPasswordVisible = ref(false)
 
-const username = ref('');
-const password = ref('');
-const valid = ref(false);
+const username = ref('')
+const password = ref('')
+const remember = ref(false)
+const loginError = ref(false)
+
 const rules = {
-  required: value => !!value || 'Required.'
+  required: value => !!value || 'Ce champ est requis.',
+  email: value => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value) || 'Adresse email invalide.';
+  }
 };
 
-const router = useRouter();
+const router = useRouter()
 
 const login = async () => {
   if (form.value.validate()) {
+    if (isEmpty(username.value) || isEmpty(password.value)) return
+
+    const credentials = {
+      username: username.value,
+      password: password.value
+    }
+
     try {
-      const response = await axios.post('http://localhost:8000/api/login', {
-        username: username.value,
-        password: password.value
-      });
-      localStorage.setItem('user', JSON.stringify(response.data));
-      router.push({ name: 'home' });  // Rediriger l'utilisateur après la connexion réussie
+      await authStore.authenticateUser(credentials);
+      // Actions à effectuer après une authentification réussie
+      router.push({ name: 'admin' }); // Rediriger vers le tableau de bord
     } catch (error) {
-      console.error('Error on login:', error.response.data);
+      loginError.value = true
+      console.error("Authentication failed:", error)
     }
   }
-};
+}
 </script>
 
 <template>
-  <RouterLink to="/admin">
-    <div class="auth-logo d-flex align-center gap-x-3">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
+  <VSnackbar
+      v-model="loginError"
+      location="top end"
+      variant="flat"
+      color="error"
+  >
+    Email ou mot de passe invalide.
+  </VSnackbar>
+
+  <div class="auth-logo d-flex align-center gap-x-3">
+    <VNodeRenderer :nodes="themeConfig.app.logo" />
+    <h1 class="auth-title">
+      {{ themeConfig.app.title }}
+    </h1>
+  </div>
 
   <VRow
     no-gutters
@@ -101,13 +122,13 @@ const login = async () => {
           </p>
         </VCardText>
         <VCardText>
-          <VForm @submit.prevent="login">
+          <VForm ref="form" @submit.prevent="login">
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.email"
-                  :rules="[rules.required]"
+                  v-model="username"
+                  :rules="[rules.required, rules.email]"
 
                   autofocus
                   label="Email"
@@ -119,7 +140,7 @@ const login = async () => {
               <!-- password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.password"
+                  v-model="password"
                   :rules="[rules.required]"
                   label="Mot de passe"
                   placeholder="············"
@@ -130,7 +151,7 @@ const login = async () => {
 
                 <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
                   <VCheckbox
-                    v-model="form.remember"
+                    v-model="remember"
                     label="Se souvenir de moi"
                   />
                   <a
