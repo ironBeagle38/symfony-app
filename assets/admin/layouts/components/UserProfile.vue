@@ -4,11 +4,19 @@ import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const authStore = useAuthStore();
-
+const userData = ref([])
 const logout = async () => {
   authStore.logout()
-  router.push({ name: 'login' }); // Rediriger vers le tableau de bord
+  router.push({ name: 'login' })
 }
+
+const userRole = computed(() => {
+  return userData.value.roles.includes("ROLE_ADMIN") ? "Admin" : "Utilisateur";
+});
+
+onMounted(() => {
+  userData.value = authStore.getUserData()
+})
 </script>
 
 <template>
@@ -57,64 +65,27 @@ const logout = async () => {
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              John Doe
+              {{ userData.firstName || 'Prénom' }} {{ userData.lastName || 'Nom' }}
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ userRole }}</VListItemSubtitle>
           </VListItem>
 
           <VDivider class="my-2" />
 
-          <!-- 👉 Profile -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-user"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Profile</VListItemTitle>
-          </VListItem>
-
           <!-- 👉 Settings -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-settings"
-                size="22"
-              />
-            </template>
+            <VListItem
+              :to="{ name: 'admin-compte-params-tab', params: { tab: 'compte' } }"
+            >
+              <template #prepend>
+                <VIcon
+                  class="me-2"
+                  icon="tabler-settings"
+                  size="22"
+                />
+              </template>
+              <VListItemTitle>Options</VListItemTitle>
 
-            <VListItemTitle>Settings</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 Pricing -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-currency-dollar"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Pricing</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 FAQ -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-help"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>FAQ</VListItemTitle>
-          </VListItem>
+            </VListItem>
 
           <!-- Divider -->
           <VDivider class="my-2" />
@@ -128,7 +99,7 @@ const logout = async () => {
               />
             </template>
 
-            <VListItemTitle>Logout</VListItemTitle>
+            <VListItemTitle>Déconnexion</VListItemTitle>
           </VListItem>
         </VList>
       </VMenu>

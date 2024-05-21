@@ -7,17 +7,29 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
+use App\Controller\ChangePasswordController;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[ApiResource]
-#[GetCollection(security: "is_granted('ROLE_ADMIN')")]
-#[Get(security: "is_granted('ROLE_USER') and object == user")] // Item operation for GET
-#[Put(security: "is_granted('ROLE_USER') and object == user")] // Item operation for PUT
-#[Delete(security: "is_granted('ROLE_ADMIN')")] // Item operation for DELETE
+#[ApiResource(
+    operations: [
+        new Get(),
+        new Put(
+            uriTemplate: '/users/{id}/changePassword',
+            controller: ChangePasswordController::class,
+            denormalizationContext: ['groups' => ['put:User:changePassword']],
+            name: 'changePassword'
+        ),
+        new Put(denormalizationContext: ['groups' => ['put:User']])
+    ],
+    normalizationContext: ['groups' => ['read:User']]
+)]
+
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -27,8 +39,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    private ?string $email = null;
+    #[ORM\Column(type: "string", length: 180, unique: true)]
+    #[Assert\Email]
+    #[Groups(['read:User'])]
+    private string $email;
 
     /**
      * @var list<string> The user roles
@@ -40,24 +54,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var ?string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['put:User:changePassword'])]
     private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $firstname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $lastname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $phoneNumber = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $address = null;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $postCode = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read:User', 'put:User'])]
     private ?string $city = null;
 
     // Getters et setters

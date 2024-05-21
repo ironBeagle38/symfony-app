@@ -4,10 +4,10 @@ import api from '@/utils/api.js'
 
 export const useAuthStore = defineStore('auth', () => {
   const token= ref(localStorage.getItem('authToken'))
+  const userData = ref(JSON.parse(localStorage.getItem('userData') || '[]'));
 
   const isAuthenticated = () => {
     // Vérifier si le token est présent
-    console.log(token)
     if (token.value) {
       try {
         // Diviser le token en ses parties : en-tête, payload et signature
@@ -35,6 +35,14 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = () => {
     token.value = null
     localStorage.removeItem('authToken')
+    localStorage.removeItem('userData')
+  }
+
+  const getUserData = () => userData.value;
+
+  const setUserData = (data) => {
+    userData.value = data
+    localStorage.setItem('userData', JSON.stringify(data))
   }
 
   const authenticateUser = async (credentials) => {
@@ -43,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Vérifiez que la réponse est correcte
       if (response.status === 200 && response.data && response.data.token) {
         login(response.data.token)
+        setUserData(response.data.userData)
       } else {
         // Gérer les réponses non attendues
         throw new Error('Invalid response from server')
@@ -58,6 +67,8 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     login,
     logout,
-    authenticateUser
+    authenticateUser,
+    setUserData,
+    getUserData
   }
 })
