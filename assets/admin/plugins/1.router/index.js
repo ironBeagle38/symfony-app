@@ -32,7 +32,6 @@ router.beforeEach((to, from, next) => {
 
   // Vérifiez si la route requiert l'authentification
   if (to.matched.some(record => record.path.startsWith('/admin'))) {
-    console.log(authStore.isAuthenticated())
     if (!isAuthenticated) {
       // Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
       next({ path: '/login' });

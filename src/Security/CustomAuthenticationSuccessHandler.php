@@ -30,7 +30,8 @@ class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler
             'postCode' => $user->getPostCode(),
             'city' => $user->getCity(),
             'address' => $user->getAddress(),
-            'phone' => $user->getPhoneNumber()
+            'phone' => $user->getPhoneNumber(),
+            'avatar' => $user->getFilePath() ? '/images/users/' . $user->getFilePath() : null
         ];
 
         $jwtToken = $this->jwtManager->create($user);

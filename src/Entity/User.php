@@ -5,15 +5,19 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
-use App\Controller\ChangePasswordController;
+use App\Controller\UserChangePasswordController;
+use App\Controller\UserUpdateUserController;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 
 #[ApiResource(
@@ -21,17 +25,24 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(),
         new Put(
             uriTemplate: '/users/{id}/changePassword',
-            controller: ChangePasswordController::class,
+            controller: UserChangePasswordController::class,
             denormalizationContext: ['groups' => ['put:User:changePassword']],
             name: 'changePassword'
         ),
-        new Put(denormalizationContext: ['groups' => ['put:User']])
+        new Put(denormalizationContext: ['groups' => ['put:User']]),
+        new Post(
+            uriTemplate: '/users/{id}/updateUser',
+            controller: UserUpdateUserController::class,
+            deserialize: false,
+            name: 'image',
+        )
     ],
     normalizationContext: ['groups' => ['read:User']]
 )]
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[Vich\Uploadable]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -80,6 +91,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read:User', 'put:User'])]
     private ?string $city = null;
+
+    #[Vich\UploadableField(mapping: 'user_image', fileNameProperty: 'filePath')]
+    private ?File $file = null;
+
+    #[Groups(['read:User', 'put:User'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $filePath = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
     // Getters et setters
     public function getId(): ?int
@@ -215,5 +239,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath(?string $filePath): static
+    {
+        $this->filePath = $filePath;
+
+        return $this;
+    }
+
+    public function getFile(): ?File
+    {
+        return $this->file;
+    }
+
+    public function setFile(?File $file): void
+    {
+        $this->file = $file;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
     }
 }

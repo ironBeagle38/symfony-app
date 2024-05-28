@@ -9,6 +9,9 @@ api.interceptors.request.use(config => {
   if (authStore.token) {
     config.headers.Authorization = `Bearer ${authStore.token}`
   }
+
+  config.headers['Content-Type'] = 'application/ld+json'
+
   return config;
 }, error => {
   return Promise.reject(error)

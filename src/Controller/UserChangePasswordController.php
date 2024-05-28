@@ -2,22 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Repository\UserRepository;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
-use Psr\Log\LoggerInterface;
-
-class ChangePasswordController extends AbstractController
+class UserChangePasswordController extends AbstractController
 {
     private UserPasswordHasherInterface $passwordHasher;
     private EntityManagerInterface $entityManager;

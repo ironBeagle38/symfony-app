@@ -20,6 +20,12 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # TODO A VERIFIER
+    # Explicitement enregistrer le contrôleur UserImageController
+    App\Controller\UserUpdateUserController:
+        public: true
+        tags: [ 'controller.service_arguments' ]
+
     App\Security\CustomAuthenticationSuccessHandler:
         arguments:
             $jwtManager: '@lexik_jwt_authentication.jwt_manager'

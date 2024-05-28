@@ -1,5 +1,4 @@
 <script setup>
-import avatar1 from '@images/avatars/avatar-1.png'
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
@@ -17,6 +16,10 @@ const userRole = computed(() => {
 onMounted(() => {
   userData.value = authStore.getUserData()
 })
+
+watch(() => authStore.userData.value, (newValue) => {
+  userData.value = newValue;
+});
 </script>
 
 <template>
@@ -33,7 +36,7 @@ onMounted(() => {
       color="primary"
       variant="tonal"
     >
-      <VImg :src="avatar1" />
+      <VImg :src="userData.avatar || avatar" alt="User Image" />
 
       <!-- SECTION Menu -->
       <VMenu
@@ -58,7 +61,7 @@ onMounted(() => {
                     color="primary"
                     variant="tonal"
                   >
-                    <VImg :src="avatar1" />
+                    <VImg :src="userData.avatar || avatar" alt="User Image" />
                   </VAvatar>
                 </VBadge>
               </VListItemAction>

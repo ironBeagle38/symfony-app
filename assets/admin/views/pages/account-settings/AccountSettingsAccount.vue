@@ -1,12 +1,13 @@
 <script setup>
 import avatar1 from '@images/avatars/avatar-1.png'
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth'
+import api from "@/utils/api.js"
 
 let accountData = {}
 const authStore = useAuthStore()
 
 const accountDataLocal = ref({
-  avatarImg: avatar1,
+  avatar: avatar1,
   firstName: '',
   lastName: '',
   email: '',
@@ -16,63 +17,82 @@ const accountDataLocal = ref({
   city: ''
 })
 
-// const accountData = {
-//   avatarImg: avatar1,
-//   firstName: 'john',
-//   lastName: 'Doe',
-//   email: 'johnDoe@example.com',
-//   org: 'Pixinvent',
-//   phone: '+1 (917) 543-9876',
-//   address: '123 Main St, New York, NY 10001',
-//   state: 'New York',
-//   zip: '10001',
-//   country: 'USA',
-//   language: 'English',
-//   timezone: '(GMT-11:00) International Date Line West',
-//   currency: 'USD',
-// }
-
 const refInputEl = ref()
-//const accountDataLocal = ref(structuredClone(accountData))
+const snackbarVisible = ref(false)
+const snackbarMessage = ref('')
+const snackbarColor = ref('')
 
 const resetForm = () => {
   accountDataLocal.value = structuredClone(accountData)
 }
 
-const sendProfilForm = () => {
-  console.log('Données sauvegardées :', accountDataLocal.value);
+const sendProfilForm = async () => {
+  const id = ref(authStore.getUserData().id)
+  const formData = new FormData()
+
+  for (const key in accountDataLocal.value) {
+    formData.append(key, accountDataLocal.value[key])
+  }
+
+  if (accountDataLocal.value.avatarFile) {
+    formData.append('avatarFile', accountDataLocal.value.avatarFile)
+  }
+
+  try {
+    const url = `/api/users/${id.value}/updateUser`
+    const response = await api.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    if (response.status === 200) {
+      snackbarVisible.value = true
+      snackbarMessage.value = 'Profil mis à jour avec succès.'
+      snackbarColor.value = "success"
+      authStore.updateUserData(accountDataLocal.value)
+      accountData = accountDataLocal.value
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('API responded with error:', error.response.data)
+    }
+  }
 }
 
 const changeAvatar = file => {
   const fileReader = new FileReader()
   const { files } = file.target
+
   if (files && files.length) {
     const file = files[0]
     const maxFileSize = 2 * 1024 * 1024
 
     if (file.size > maxFileSize) {
-      alert("Le fichier est trop volumineux. Taille maximale autorisée : 2 Mo.")
+      snackbarVisible.value = true
+      snackbarMessage.value = 'Le fichier est trop volumineux. Taille maximale autorisée : 2 Mo.'
+      snackbarColor.value = "error"
+
       return
     }
 
     fileReader.readAsDataURL(file)
     fileReader.onload = () => {
       if (typeof fileReader.result === 'string')
-        accountDataLocal.value.avatarImg = fileReader.result
+        accountDataLocal.value.avatar = fileReader.result
+        accountDataLocal.value.avatarFile = file
     }
   }
 }
-
-// reset avatar image
 const resetAvatar = () => {
-  accountDataLocal.value.avatarImg = accountData.avatarImg
+  accountDataLocal.value.avatar = accountData.avatar
 }
 
 onMounted(() => {
   const userData = authStore.getUserData()
 
   accountData = {
-    avatarImg: userData.profilPicture || avatar1,
+    avatar: userData.avatar || avatar1,
     firstName: userData.firstName || '',
     lastName: userData.lastName || '',
     email: userData.email || '',
@@ -96,7 +116,7 @@ onMounted(() => {
             rounded
             size="100"
             class="me-6"
-            :image="accountDataLocal.avatarImg"
+            :image="accountDataLocal.avatar"
           />
 
           <!-- 👉 Upload Photo -->
@@ -187,8 +207,6 @@ onMounted(() => {
                 />
               </VCol>
 
-
-
               <!-- 👉 Phone -->
               <VCol
                 cols="12"
@@ -213,13 +231,13 @@ onMounted(() => {
                 />
               </VCol>
 
-              <!-- 👉 State -->
+              <!-- 👉 City -->
               <VCol
                 cols="12"
                 md="6"
               >
                 <AppTextField
-                  v-model="accountDataLocal.state"
+                  v-model="accountDataLocal.city"
                   label="Ville"
                   placeholder="Paris"
                 />
@@ -257,5 +275,15 @@ onMounted(() => {
         </VCardText>
       </VCard>
     </VCol>
+
+    <VSnackbar
+        v-model="snackbarVisible"
+        location="bottom end"
+        variant="flat"
+        :color="snackbarColor"
+        :style="{ bottom: '5vh' }"
+    >
+      {{ snackbarMessage }}
+    </VSnackbar>
   </VRow>
 </template>

@@ -20,10 +20,14 @@ export const useAuthStore = defineStore('auth', () => {
         // En cas d'erreur lors du décodage du token
         console.error('Error decoding the token:', error)
 
+        localStorage.removeItem('authToken')
+        localStorage.removeItem('userData')
         return false
       }
     }
     // Si le token n'est pas présent
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('userData')
     return false
   }
 
@@ -45,6 +49,16 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('userData', JSON.stringify(data))
   }
 
+  const updateUserData = (newData) => {
+    const { id, roles } = userData.value
+
+    Object.assign(userData.value, newData)
+    userData.value.id = id
+    userData.value.roles = roles
+
+    localStorage.setItem('userData', JSON.stringify(userData.value))
+  }
+
   const authenticateUser = async (credentials) => {
     try {
       const response = await api.post('/api/login', credentials)
@@ -64,11 +78,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     token,
+    userData,
     isAuthenticated,
     login,
     logout,
     authenticateUser,
     setUserData,
-    getUserData
+    getUserData,
+    updateUserData,
   }
 })

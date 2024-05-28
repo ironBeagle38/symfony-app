@@ -39,11 +39,7 @@ const changePassword = async () => {
 
     try {
       const url = `/api/users/${id.value}/changePassword`
-      const response = await api.put(url, data, {
-        headers: {
-          'Content-Type': 'application/ld+json'
-        }
-      })
+      const response = await api.put(url, data)
 
       if (response.status === 200 && response.data.message) {
         snackbarMessage.value = response.data.message
@@ -182,6 +178,7 @@ const changePassword = async () => {
         location="bottom end"
         variant="flat"
         :color="snackbarColor"
+        :style="{ bottom: '5vh' }"
     >
       {{ snackbarMessage }}
     </VSnackbar>
