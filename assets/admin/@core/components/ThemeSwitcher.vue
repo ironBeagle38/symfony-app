@@ -50,7 +50,7 @@ watch(() => configStore.theme, () => {
           class="text-capitalize"
           @click="() => { configStore.theme = name }"
         >
-          {{ name }}
+          {{ name === 'light' ? 'Clair' : 'Sombre' }}
         </VListItem>
       </VList>
     </VMenu>

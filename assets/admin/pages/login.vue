@@ -58,10 +58,10 @@ const login = async () => {
 
 <template>
   <VSnackbar
-      v-model="loginError"
-      location="top end"
-      variant="flat"
-      color="error"
+    v-model="loginError"
+    location="top end"
+    variant="flat"
+    color="error"
   >
     Email ou mot de passe invalide.
   </VSnackbar>

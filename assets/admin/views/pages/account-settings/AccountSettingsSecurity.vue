@@ -174,11 +174,10 @@ const changePassword = async () => {
     </VCol>
 
     <VSnackbar
-        v-model="snackbarVisible"
-        location="bottom end"
-        variant="flat"
-        :color="snackbarColor"
-        :style="{ bottom: '5vh' }"
+      v-model="snackbarVisible"
+      location="bottom end"
+      variant="flat"
+      :color="snackbarColor"
     >
       {{ snackbarMessage }}
     </VSnackbar>

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserUpdateUserController extends AbstractController
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {

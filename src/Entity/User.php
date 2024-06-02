@@ -3,11 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Delete;
 use App\Controller\UserChangePasswordController;
 use App\Controller\UserUpdateUserController;
 use App\Repository\UserRepository;
@@ -22,24 +19,22 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ApiResource(
     operations: [
-        new Get(),
         new Put(
             uriTemplate: '/users/{id}/changePassword',
             controller: UserChangePasswordController::class,
             denormalizationContext: ['groups' => ['put:User:changePassword']],
             name: 'changePassword'
         ),
-        new Put(denormalizationContext: ['groups' => ['put:User']]),
         new Post(
             uriTemplate: '/users/{id}/updateUser',
             controller: UserUpdateUserController::class,
+            denormalizationContext: ['groups' => ['post:User:updateUser']],
             deserialize: false,
-            name: 'image',
+            name: 'updateUser',
         )
     ],
     normalizationContext: ['groups' => ['read:User']]
 )]
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[Vich\Uploadable]
@@ -69,39 +64,41 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $firstname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $lastname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $phoneNumber = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $address = null;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $postCode = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     private ?string $city = null;
 
     #[Vich\UploadableField(mapping: 'user_image', fileNameProperty: 'filePath')]
     private ?File $file = null;
 
-    #[Groups(['read:User', 'put:User'])]
+    #[Groups(['read:User', 'post:User:updateUser'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $filePath = null;
 
+    #[Groups(['post:User:updateUser'])]
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[Groups(['post:User:updateUser'])]
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 

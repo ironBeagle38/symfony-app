@@ -56,6 +56,9 @@ const sendProfilForm = async () => {
   } catch (error) {
     if (error.response) {
       console.error('API responded with error:', error.response.data)
+      snackbarVisible.value = true
+      snackbarMessage.value = 'Une erreur inattendue s\'est produite.'
+      snackbarColor.value = "error"
     }
   }
 }
@@ -277,11 +280,10 @@ onMounted(() => {
     </VCol>
 
     <VSnackbar
-        v-model="snackbarVisible"
-        location="bottom end"
-        variant="flat"
-        :color="snackbarColor"
-        :style="{ bottom: '5vh' }"
+      v-model="snackbarVisible"
+      location="bottom end"
+      variant="flat"
+      :color="snackbarColor"
     >
       {{ snackbarMessage }}
     </VSnackbar>
