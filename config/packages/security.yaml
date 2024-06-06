@@ -38,6 +38,7 @@ security:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         #TODO Changez le role de /api
         - { path: ^/api,       roles: PUBLIC_ACCESS }
+#        - { path: ^/api/forgot-password/, role: PUBLIC_ACCESS }
 
 when@test:
     security:

@@ -1,6 +1,6 @@
 import { setupLayouts } from 'virtual:generated-layouts'
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import { useAuthStore } from '@/stores/auth'; // Importez votre store d'authentification
+import { useAuthStore } from '@/stores/auth'
 
 function recursiveLayouts(route) {
   if (route.children) {
@@ -26,6 +26,7 @@ const router = createRouter({
   ],
 })
 
+//TODO transféré dans un guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const isAuthenticated = authStore.isAuthenticated();

@@ -12,13 +12,14 @@ api.interceptors.request.use(config => {
     config.headers.Authorization = `Bearer ${authStore.token}`
     config.headers['Content-Type'] = 'application/ld+json'
 
-    return config
   } else {
     // Si aucun token n'est trouvé, déconnectez et redirigez vers la page de connexion
-    authStore.logout()
-    router.push({ name: 'login' })
-    return Promise.reject(new Error('Utilisateur non authentifié'))
+   // authStore.logout()
+   // router.push({ name: 'login' })
+    //return Promise.reject(new Error('Utilisateur non authentifié'))
   }
+  return config
+
 }, error => {
   return Promise.reject(error)
 })

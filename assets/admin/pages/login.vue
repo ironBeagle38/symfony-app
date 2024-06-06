@@ -9,7 +9,6 @@ import authV2MaskLight from '@images/pages/misc-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer.jsx'
 import { themeConfig } from '@themeConfig'
 import { useAuthStore } from '@/stores/auth'
-import {isEmpty} from "@core/utils/helpers.js";
 
 definePage({ meta: { layout: 'blank' } })
 
@@ -36,21 +35,23 @@ const rules = {
 const router = useRouter()
 
 const login = async () => {
-  if (form.value.validate()) {
-    if (isEmpty(username.value) || isEmpty(password.value)) return
+  const { valid } = await form.value.validate()
 
+  if (valid) {
     const credentials = {
       username: username.value,
       password: password.value
     }
 
     try {
-      await authStore.authenticateUser(credentials);
-      // Actions à effectuer après une authentification réussie
-      router.push({ name: 'admin' }); // Rediriger vers le tableau de bord
+      await authStore.authenticateUser(credentials)
+      router.push({ name: 'admin' })
     } catch (error) {
-      loginError.value = true
       console.error("Authentication failed:", error)
+
+      loginError.value = true
+      username.value = ''
+      password.value = ''
     }
   }
 }
@@ -122,14 +123,17 @@ const login = async () => {
           </p>
         </VCardText>
         <VCardText>
-          <VForm ref="form" @submit.prevent="login">
+          <VForm
+            ref="form"
+            @submit.prevent="login"
+            validate-on="submit lazy"
+          >
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
                   v-model="username"
                   :rules="[rules.required, rules.email]"
-
                   autofocus
                   label="Email"
                   type="email"
@@ -154,12 +158,12 @@ const login = async () => {
                     v-model="remember"
                     label="Se souvenir de moi"
                   />
-                  <a
+                  <RouterLink
                     class="text-primary ms-2 mb-1"
-                    href="#"
+                    :to="{ name: 'authentification-mot-de-passe-oublie' }"
                   >
                     Mot de passe oublié ?
-                  </a>
+                  </RouterLink>
                 </div>
 
                 <VBtn

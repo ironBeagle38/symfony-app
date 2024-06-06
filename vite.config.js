@@ -12,9 +12,6 @@ import Layouts from 'vite-plugin-vue-layouts'
 import vuetify from 'vite-plugin-vuetify'
 import svgLoader from 'vite-svg-loader'
 
-/* if you're using React */
-// import react from '@vitejs/plugin-react';
-
 export default defineConfig({
   plugins: [
     // Docs: https://github.com/posva/unplugin-vue-router

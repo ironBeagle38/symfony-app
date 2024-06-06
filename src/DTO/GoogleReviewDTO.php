@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Dto;
+namespace App\DTO;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class GoogleReviewDto
+class GoogleReviewDTO
 {
     #[Groups(['write:GoogleReview'])]
     public string $reviewId;

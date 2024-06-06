@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Dto\GoogleReviewDto;
+use App\DTO\GoogleReviewDTO;
 use App\Entity\GoogleReview;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +34,7 @@ class GoogleReviewCollectionController
 
         try {
             // Désérialiser la collection de GoogleReviewDto
-            $googleReviewDtos = $this->serializer->deserialize($data, GoogleReviewDto::class . '[]', 'json');
+            $googleReviewDtos = $this->serializer->deserialize($data, GoogleReviewDTO::class . '[]', 'json');
         } catch (\Exception $e) {
             return new JsonResponse(['error' => 'Invalid JSON data'], JsonResponse::HTTP_BAD_REQUEST);
         }
